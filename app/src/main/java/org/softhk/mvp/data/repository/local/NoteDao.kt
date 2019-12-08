@@ -1,9 +1,7 @@
 package org.softhk.mvp.data.repository.local
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.lifecycle.LiveData
+import androidx.room.*
 import org.softhk.mvp.data.entity.Note
 
 @Dao
@@ -13,12 +11,15 @@ interface NoteDao {
     fun insertNote(note: Note)
 
     @Query("SELECT * FROM Note WHERE id = :id")
-    fun findNoteById(id: Int): Note
+    fun findNoteById(id: Int): LiveData<Note>
 
     @Query("SELECT * FROM Note")
-    fun getAllNotes(): List<Note>
+    fun getAllNotes(): LiveData<List<Note>>
 
     @Delete
+    fun deleteNote(note: Note)
+
+    @Update
     fun updateNote(note: Note)
 
 

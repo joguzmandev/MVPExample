@@ -1,26 +1,28 @@
 package org.softhk.mvp.ui.main
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.softhk.mvp.R
 import org.softhk.mvp.data.entity.Note
 import org.softhk.mvp.data.repository.Repository
 import org.softhk.mvp.data.repository.local.DB
-import org.softhk.mvp.data.repository.local.NoteDao
-import org.softhk.mvp.data.repository.local.NoteDataBase
 import org.softhk.mvp.data.repository.local.NoteLocalDataSource
-import org.softhk.mvp.presenter.NotePresenter
+import org.softhk.mvp.presenter.NoteMainPresenter
 import org.softhk.mvp.ui.main.adapter.NoteAdapter
+import org.softhk.mvp.ui.main.adapter.RecyclerViewNoteListener
 
-class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener {
+class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener,
+    RecyclerViewNoteListener {
 
-    private lateinit var presenter: NotePresenter
+    private lateinit var mainPresenter: NoteMainPresenter
     private lateinit var rvAdapter: NoteAdapter
     private lateinit var recyclerView: RecyclerView
 
@@ -30,7 +32,7 @@ class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener
     private lateinit var buttonRegister: Button
 
     fun setUpRecyclerView() {
-        rvAdapter = NoteAdapter()
+        rvAdapter = NoteAdapter(this)
 
         recyclerView = findViewById(R.id.rvNotes)
 
@@ -56,20 +58,22 @@ class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener
         setContentView(R.layout.activity_main)
         setUpRecyclerView()
         setUpUI()
-        presenter = NotePresenter(
+        mainPresenter = NoteMainPresenter(
             this,
             Repository(NoteLocalDataSource(DB.getInstance(this)))
         )
-
         fetchNotes()
     }
 
     override fun fetchNotes() {
-        presenter.getAllNote()
+        mainPresenter.getAllNote()
     }
 
-    override fun setNotes(listOfNotes: List<Note>) {
-        rvAdapter.setAdapter(listOfNotes)
+    override fun setNotes(listOfNotes: LiveData<List<Note>>) {
+        listOfNotes.observe(this, Observer { list ->
+            rvAdapter.setAdapter(list)
+        })
+
     }
 
     override fun onClick(v: View) {
@@ -77,9 +81,17 @@ class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener
             R.id.button_register -> {
                 val textName = editTextName.text.toString()
                 val textDescription = editTextDescription.text.toString()
-                presenter.addNote(Note(name = textName, description = textDescription))
-                clearUI()
+                mainPresenter.addNote(Note(name = textName, description = textDescription))
+                    .apply {
+                        clearUI()
+                    }
+
             }
         }
+    }
+
+    override fun onNoteDeleteClick(noteToDelete: Note) {
+        mainPresenter.deleteNote(noteToDelete)
+        Toast.makeText(this, "Note selected to delete: ${noteToDelete}", Toast.LENGTH_LONG).show()
     }
 }

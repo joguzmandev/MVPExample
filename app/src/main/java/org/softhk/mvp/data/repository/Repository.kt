@@ -1,5 +1,6 @@
 package org.softhk.mvp.data.repository
 
+import androidx.lifecycle.LiveData
 import org.softhk.mvp.data.entity.Note
 import org.softhk.mvp.data.repository.ds.NoteDataSource
 import org.softhk.mvp.data.repository.local.NoteLocalDataSource
@@ -11,19 +12,19 @@ class Repository constructor(val noteLocalDs: NoteLocalDataSource) : NoteDataSou
         noteLocalDs.addNote(note)
     }
 
-    override fun findNoteById(id: Int): Note {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun findNoteById(id: Int): LiveData<Note> {
+        return noteLocalDs.findNoteById(id)
     }
 
     override fun updateNote(note: Note) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        noteLocalDs.updateNote(note)
     }
 
     override fun deleteNote(note: Note) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        noteLocalDs.deleteNote(note)
     }
 
-    override fun getAllNote(): List<Note> {
+    override fun getAllNote(): LiveData<List<Note>> {
         return noteLocalDs.getAllNote()
     }
 }

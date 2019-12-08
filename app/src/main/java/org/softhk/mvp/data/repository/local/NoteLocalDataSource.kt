@@ -2,6 +2,7 @@ package org.softhk.mvp.data.repository.local
 
 import android.os.AsyncTask
 import android.util.Log
+import androidx.lifecycle.LiveData
 import org.softhk.mvp.data.entity.Note
 import org.softhk.mvp.data.repository.ds.NoteDataSource
 
@@ -9,12 +10,7 @@ import org.softhk.mvp.data.repository.ds.NoteDataSource
 class NoteLocalDataSource constructor(var noteDataBase: NoteDataBase) : NoteDataSource {
 
     override fun addNote(note: Note) {
-
         AsyncTask.execute { noteDataBase.noteDao().insertNote(note) }
-    }
-
-    override fun findNoteById(id: Int): Note {
-        return noteDataBase.noteDao().findNoteById(id)
     }
 
     override fun updateNote(note: Note) {
@@ -22,11 +18,15 @@ class NoteLocalDataSource constructor(var noteDataBase: NoteDataBase) : NoteData
     }
 
     override fun deleteNote(note: Note) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        AsyncTask.execute { noteDataBase.noteDao().deleteNote(note) }
     }
 
-    override fun getAllNote(): List<Note> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun findNoteById(id: Int): LiveData<Note> {
+        return noteDataBase.noteDao().findNoteById(id)
+    }
+
+    override fun getAllNote(): LiveData<List<Note>> {
+        return noteDataBase.noteDao().getAllNotes()
     }
 
 
