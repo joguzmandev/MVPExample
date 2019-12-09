@@ -24,10 +24,12 @@ android {
         }
     }
 }
-def room_version = '2.2.2'
+def room_version = '2.2.0'
 def recyclerview_version = '1.1.0'
 def cardview_version = "1.0.0"
 def livedata_version = "2.1.0"
+def dagger_version = "2.25.2"
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
@@ -42,10 +44,19 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
     implementation "androidx.cardview:cardview:$cardview_version"
 
-    //ROOM DB
-    implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+
 
     //LiveData
     implementation "androidx.lifecycle:lifecycle-livedata:$livedata_version"
+
+    //DAGGER 2
+    implementation "com.google.dagger:dagger-android:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+
+
+    //ROOM DB
+    implementation "androidx.room:room-runtime:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
 }

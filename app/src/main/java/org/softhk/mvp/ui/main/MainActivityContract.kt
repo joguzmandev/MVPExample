@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import org.softhk.mvp.data.entity.Note
 
-interface MainActivityView {
+interface MainActivityContract {
 
     fun fetchNotes()
     fun setNotes(listOfNotes: LiveData<List<Note>>)

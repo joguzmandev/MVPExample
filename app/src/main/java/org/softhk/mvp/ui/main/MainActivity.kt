@@ -12,17 +12,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import org.softhk.mvp.R
 import org.softhk.mvp.data.entity.Note
-import org.softhk.mvp.data.repository.Repository
-import org.softhk.mvp.data.repository.local.DB
-import org.softhk.mvp.data.repository.local.NoteLocalDataSource
+import org.softhk.mvp.di.DaggerMVPExampleComponent
+import org.softhk.mvp.di.MVPExampleComponent
+import org.softhk.mvp.di.MVPExampleModule
 import org.softhk.mvp.presenter.NoteMainPresenter
+import org.softhk.mvp.presenter.NoteMainPresenterContract
 import org.softhk.mvp.ui.main.adapter.NoteAdapter
 import org.softhk.mvp.ui.main.adapter.RecyclerViewNoteListener
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener,
+class MainActivity : AppCompatActivity(), MainActivityContract, View.OnClickListener,
     RecyclerViewNoteListener {
 
-    private lateinit var mainPresenter: NoteMainPresenter
+    @Inject
+    lateinit var mainPresenter: NoteMainPresenterContract
+
     private lateinit var rvAdapter: NoteAdapter
     private lateinit var recyclerView: RecyclerView
 
@@ -31,37 +35,12 @@ class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener
     private lateinit var editTextDescription: EditText
     private lateinit var buttonRegister: Button
 
-    fun setUpRecyclerView() {
-        rvAdapter = NoteAdapter(this)
-
-        recyclerView = findViewById(R.id.rvNotes)
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        recyclerView.adapter = rvAdapter
-    }
-
-    fun setUpUI() {
-        editTextName = findViewById(R.id.edittext_name)
-        editTextDescription = findViewById(R.id.edittext_description)
-        buttonRegister = findViewById(R.id.button_register)
-        buttonRegister.setOnClickListener(this)
-    }
-
-    fun clearUI() {
-        editTextName.text.clear()
-        editTextDescription.text.clear()
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setUpDagger()
         setUpRecyclerView()
         setUpUI()
-        mainPresenter = NoteMainPresenter(
-            this,
-            Repository(NoteLocalDataSource(DB.getInstance(this)))
-        )
         fetchNotes()
     }
 
@@ -85,13 +64,41 @@ class MainActivity : AppCompatActivity(), MainActivityView, View.OnClickListener
                     .apply {
                         clearUI()
                     }
-
             }
         }
     }
 
     override fun onNoteDeleteClick(noteToDelete: Note) {
         mainPresenter.deleteNote(noteToDelete)
-        Toast.makeText(this, "Note selected to delete: ${noteToDelete}", Toast.LENGTH_LONG).show()
     }
+
+    fun setUpDagger() {
+        var mvpExampleComponent: MVPExampleComponent = DaggerMVPExampleComponent.builder()
+            .mVPExampleModule(MVPExampleModule(application, this))
+            .build()
+        mvpExampleComponent.inject(this)
+    }
+
+    fun setUpRecyclerView() {
+        rvAdapter = NoteAdapter(this)
+
+        recyclerView = findViewById(R.id.rvNotes)
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        recyclerView.adapter = rvAdapter
+    }
+
+    fun setUpUI() {
+        editTextName = findViewById(R.id.edittext_name)
+        editTextDescription = findViewById(R.id.edittext_description)
+        buttonRegister = findViewById(R.id.button_register)
+        buttonRegister.setOnClickListener(this)
+    }
+
+    fun clearUI() {
+        editTextName.text.clear()
+        editTextDescription.text.clear()
+    }
+
 }
