@@ -2,11 +2,13 @@ package org.softhk.mvp.presenter
 
 import org.softhk.mvp.data.entity.Note
 import org.softhk.mvp.data.repository.Repository
-import org.softhk.mvp.data.repository.ds.NoteDataSource
-import org.softhk.mvp.ui.main.MainActivityContract
+import org.softhk.mvp.contract.MainActivityPresenterContract
 
-class NoteMainPresenter constructor(val view: MainActivityContract, val repository: Repository) :
-    NoteMainPresenterContract {
+class NoteMainPresenter constructor(
+    val view: MainActivityPresenterContract.view,
+    val repository: Repository
+) :
+    MainActivityPresenterContract.presenter {
 
     override fun getAllNote() {
         repository.getAllNote().let {list->
